@@ -1,0 +1,39 @@
+version: "3.9"
+
+services: 
+  database:
+    container_name: postgres_alunos
+    image: postgres:15.4-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - postgres-network
+
+  api:
+    container_name: api_alunos
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8002:8000"
+    depends_on:
+      - database
+    environment:
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_HOST=database
+      - DB_PORT=5432
+    networks:
+      - postgres-network
+
+networks:
+  postgres-network:
+    driver: bridge
